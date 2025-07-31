@@ -1,14 +1,19 @@
 import { useEffect, useState } from 'react';
+import { getWeatherData } from './getWeather'; // Adjust path if needed
 
 function WeatherBackground({ children }) {
   const [weather, setWeather] = useState(null);
 
   useEffect(() => {
-    const weatherTypes = ['clear', 'cloudy', 'rainy', 'snowy'];
-    const randomWeather = weatherTypes[Math.floor(Math.random() * weatherTypes.length)];
-    setWeather(randomWeather);
+    async function fetchWeather() {
+      const data = await getWeatherData();
+      console.log(data);
+      setWeather(data.label);
+    }
 
-    // Apply full screen styles directly to <body> and <html>
+    fetchWeather();
+
+    // Set full-screen background styles
     document.documentElement.style.margin = '0';
     document.documentElement.style.padding = '0';
     document.documentElement.style.height = '100%';
@@ -20,22 +25,22 @@ function WeatherBackground({ children }) {
     document.body.style.width = '100%';
   }, []);
 
-const backgroundStyle = {
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  width: '100vw',
-  height: '100vh',
-  backgroundImage: weather ? `url(images/${weather}.png)` : 'none',
-  backgroundSize: 'cover',
-  backgroundRepeat: 'no-repeat',
-  backgroundPosition: 'center',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  overflow: 'hidden',
-  color: 'white',
-};
+  const backgroundStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    backgroundImage: weather ? `url(images/${weather}.png)` : 'none',
+    backgroundSize: 'cover',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+    color: 'white',
+  };
 
   return (
     <div style={backgroundStyle}>

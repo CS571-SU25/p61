@@ -2,12 +2,14 @@ import { Button } from "react-bootstrap";
 import WeatherBackground from './WeatherBackground';
 import RotatingTagline from "./RotatingTagline";
 import { useNavigate } from "react-router-dom";
+import ShowTime from "./showTime";
 
 function HomePage() {
     const navigate = useNavigate();
     
   return (
     <WeatherBackground>
+      <ShowTime />
       <div className="home-content" style={{ textAlign: 'center', paddingTop: '100px' }}>
         <h1>BadgerBuzz</h1>
         <RotatingTagline/>
