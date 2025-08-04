@@ -41,7 +41,6 @@ export async function getWeatherData() {
       label: weatherMap[current.weathercode] || 'clear',
       temperature: current.temperature,
       windspeed: current.windspeed,
-      time: current.time
     };
   } catch (error) {
     console.error("Error fetching weather:", error);

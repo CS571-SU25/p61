@@ -1,37 +1,44 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Card, Container, Row, Col, Modal, Dropdown } from 'react-bootstrap';
+import events from './EventsList';
 
 function ExplorePage() {
   const [showMoodModal, setShowMoodModal] = useState(false);
-  const [selectedMood, setSelectedMood] = useState(null);
+  const [selectedMoods, setSelectedMoods] = useState([]);
   const navigate = useNavigate();
 
-  const events = [
-    {
-      id: 1,
-      title: "Career Fair @ Gordon Commons",
-      time: "Wed, July 24, 2:00 PM",
-      location: "Gordon Dining & Event Center",
-    },
-    {
-      id: 2,
-      title: "Outdoor Yoga on Bascom",
-      time: "Thu, July 25, 9:00 AM",
-      location: "Bascom Hill",
-    },
-    {
-      id: 3,
-      title: "Badger Esports Tournament",
-      time: "Fri, July 26, 6:00 PM",
-      location: "Union South",
-    },
-  ];
+  const moods = ['Excited', 'Chill', 'Curious', 'Productive'];
 
-  const moods = ['Excited', 'Chill', 'Curious', 'Busy'];
+  const toggleMood = (mood) => {
+    setSelectedMoods((prev) =>
+      prev.includes(mood) ? prev.filter((m) => m !== mood) : [...prev, mood]
+    );
+  };
+
+  const formatTime = (timeStr) => {
+    if (timeStr.toLowerCase() === "all day") return "All day";
+
+    const [startRaw, endRaw] = timeStr.split("–");
+    const formatPart = (part) => {
+      const match = part.trim().match(/(\d{1,2})(?:\:(\d{2}))?\s*(a|p)\.?m\.?/i);
+      if (!match) return part;
+      let [_, hour, minutes, meridian] = match;
+      hour = hour.padStart(2, '0');
+      minutes = minutes || '00';
+      return `${hour}:${minutes} ${meridian.toUpperCase()}M`;
+    };
+
+    if (!endRaw) return formatPart(startRaw);
+    return `${formatPart(startRaw)} - ${formatPart(endRaw)}`;
+  };
+
+  const filteredEvents = selectedMoods.length
+    ? events.filter((e) => selectedMoods.includes(e.mood))
+    : events;
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative', minHeight: '100vh' }}>
       {/* Top Right Dropdown Button */}
       <div style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 10 }}>
         <Dropdown>
@@ -55,12 +62,10 @@ function ExplorePage() {
           {moods.map((mood) => (
             <Button
               key={mood}
-              onClick={() => {
-                setSelectedMood(mood);
-                setShowMoodModal(false);
-              }}
-              variant={selectedMood === mood ? 'primary' : 'outline-secondary'}
+              onClick={() => toggleMood(mood)}
+              variant={selectedMoods.includes(mood) ? 'primary' : 'outline-secondary'}
               className="m-1"
+              aria-pressed={selectedMoods.includes(mood)}
             >
               {mood}
             </Button>
@@ -69,23 +74,50 @@ function ExplorePage() {
       </Modal>
 
       {/* Events List */}
-      <Container style={{ paddingTop: '80px' }}>
+      <Container style={{ paddingTop: '80px', paddingBottom: '60px' }}>
+        <h1 className="text-center">Explore Events</h1>
         <h2 className="mb-4 text-center">Recommended Events</h2>
         <Row>
-          {events.map(event => (
-            <Col key={event.id} md={4} className="mb-4">
+          {filteredEvents.map((event, idx) => (
+            <Col key={idx} md={4} className="mb-4">
               <Card>
                 <Card.Body>
                   <Card.Title>{event.title}</Card.Title>
-                  <Card.Subtitle className="mb-2 text-muted">{event.time}</Card.Subtitle>
+                  <Card.Subtitle className="mb-2 text-muted">
+                    {formatTime(event.time)}
+                  </Card.Subtitle>
                   <Card.Text>{event.location}</Card.Text>
-                  <Button variant="primary">RSVP</Button>
+                  <Button variant="primary" href="https://today.wisc.edu/events/day/2025-08-04" target="_blank">
+                    RSVP
+                  </Button>
                 </Card.Body>
               </Card>
             </Col>
           ))}
         </Row>
       </Container>
+
+      {/* Floating AI Chat Button */}
+      <button
+        onClick={() => navigate('/chat')}
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          padding: '12px 18px',
+          borderRadius: '50px',
+          backgroundColor: '#28a745',
+          color: 'white',
+          border: 'none',
+          cursor: 'pointer',
+          fontWeight: 'bold',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          zIndex: 9999
+        }}
+        aria-label="Talk to AI"
+      >
+        💬 Talk to AI
+      </button>
     </div>
   );
 }
